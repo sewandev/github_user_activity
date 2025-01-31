@@ -21,8 +21,7 @@ def fetch_github_activity(username):
 
         data = response.read().decode()
         
-        
-        return json.loads(data)  # Puede lanzar json.JSONDecodeError
+        return json.loads(data)
     except http.client.HTTPException as e:
         print(f"{c.RED}Error de conexión: {e}{c.RESET}")
         return None
@@ -45,14 +44,14 @@ def display_activity(events):
         repo = event.get("repo", {})
         repo_name = repo.get("name", "Repositorio desconocido")
 
-        for commit in commits:
-            message = commit.get("message", "Sin mensaje")
-            print(f"    {c.CYAN}- {message}{c.RESET}")
-
         if event_type == "PushEvent":
             commits = event.get("payload", {}).get("commits", [])
             print(f"{c.GREEN}- Pushed {len(commits)} commit(s) to {repo_name}{c.RESET}")
 
+            for commit in commits:
+                message = commit.get("message", "Sin mensaje")
+                print(f"    {c.CYAN}- {message}{c.RESET}")
+        
         elif event_type == "IssuesEvent":
             action = event.get("payload", {}).get("action", "realizó una acción en")
             print(f"{c.YELLOW}- {action.capitalize()} an issue in {repo_name}{c.RESET}")
@@ -66,20 +65,18 @@ def display_activity(events):
     if len(events) > 5:
         ver_mas = input(f"{c.YELLOW}¿Quieres ver más eventos? (s/n): {c.RESET}").strip().lower()
         if ver_mas == "s":
-            for event in events[5:10]:  # Mostramos otros 5 eventos
+            for event in events[5:10]:  
                 event_type = event.get("type", "Evento desconocido")
                 repo = event.get("repo", {})
                 repo_name = repo.get("name", "Repositorio desconocido")
                 print(f"{c.CYAN}- {event_type} en {repo_name}{c.RESET}")
-
-
 
 def main():
     if len(sys.argv) < 2:
         print(f"{c.RED}Uso: github-activity <username>{c.RESET}")
         return
 
-    username = sys.argv[1].strip()  # Eliminar espacios extra
+    username = sys.argv[1].strip()
     if not username:
         print(f"{c.RED}Error: Debes proporcionar un nombre de usuario válido.{c.RESET}")
         return
@@ -90,7 +87,6 @@ def main():
     
     if events is not None:
         display_activity(events)
-
 
 if __name__ == "__main__":
     main()
